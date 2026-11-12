@@ -23,3 +23,24 @@ Depending on your authentication server, you will need to make sure that it is e
 pnpm i
 pnpm dev
 ```
+
+## Application-Initiated Actions (AIA)
+
+When the issuer is Keycloak (including Auth.it), the **User Actions** panel shows buttons that start [Application-Initiated Actions](https://www.keycloak.org/docs/latest/server_admin/index.html#con-aia_server_administration_guide). The app sends the user to the auth server with a `kc_action` query parameter (see `goToAuthServer` in `src/components/auth/user-actions.tsx`). Keycloak runs that required action and redirects back to the app. The app then shows the action and the `kc_action_status` it got back:
+
+- `success`: the user completed the action.
+- `cancelled`: the user cancelled the action.
+- `error`: the action failed.
+
+The sample includes these actions:
+
+| Button                          | `kc_action`                      | Realm prerequisites                                                                                            |
+| ------------------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Change password                 | `UPDATE_PASSWORD`                | **Update Password** required action enabled                                                                    |
+| Update profile                  | `UPDATE_PROFILE`                 | **Update Profile** required action enabled                                                                     |
+| Set up OTP                      | `CONFIGURE_TOTP`                 | **Configure OTP** required action enabled                                                                      |
+| Register security key           | `webauthn-register`              | **Webauthn Register** required action enabled                                                                  |
+| Register passkey (passwordless) | `webauthn-register-passwordless` | **Webauthn Register Passwordless** required action enabled                                                     |
+| Delete account                  | `delete_account`                 | **Delete Account** required action enabled, and the user has the `delete-account` role of the `account` client |
+
+Enable required actions in the admin console under **Authentication > Required actions**. To demonstrate another action, add its required-action alias to `APPLICATION_INITIATED_ACTIONS` in `src/components/auth/user-actions.tsx`. For example, `UPDATE_EMAIL` needs the update-email feature enabled on the server.
